@@ -1,16 +1,18 @@
 import asyncio
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, Router, types, F
+from aiogram.types import Message
 from scheduler import start_scheduler
 from bot_logic import post_news
 import os
 
 bot = Bot(token=os.environ.get("BOT_TOKEN"))
 dp = Dispatcher()
+router = Router()
+dp.include_router(router)
 
-@dp.message(commands=["обновить"])
-async def manual_post(message: types.Message):
+@router.message(F.text == "/обновить")
+async def manual_post(message: Message):
     user_id = message.from_user.id
-    # Только администратор может вручную обновлять
     admin_id = os.environ.get("ADMIN_ID")
     if admin_id and str(user_id) == str(admin_id):
         await message.answer("⏳ Публикую следующую новость...")
