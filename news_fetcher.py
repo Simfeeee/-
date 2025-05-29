@@ -3,6 +3,16 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
+def extract_article_text(url):
+    try:
+        r = requests.get(url, timeout=5)
+        soup = BeautifulSoup(r.text, "html.parser")
+        paragraphs = soup.find_all("p")
+        text = " ".join(p.get_text() for p in paragraphs[:3])
+        return text.strip()
+    except Exception:
+        return ""
+
 def fetch_latest_news(feed_urls):
     latest_news = []
     cutoff = datetime.utcnow() - timedelta(hours=2)
@@ -18,9 +28,13 @@ def fetch_latest_news(feed_urls):
             if pub_date < cutoff:
                 continue
 
-            summary = entry.get("summary", "")[:500]
             link = entry.get("link")
             title = entry.get("title", "").strip()
+
+            # Извлекаем полный текст статьи
+            summary = extract_article_text(link)
+            if not summary:
+                summary = entry.get("summary", "")[:500]
 
             image = ""
             media_content = entry.get("media_content", [])
