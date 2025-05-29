@@ -4,13 +4,11 @@ from aiogram import Bot
 from aiogram.types import InputMediaPhoto
 from config import RSS_FEEDS, CHANNEL_ID
 from news_fetcher import fetch_latest_news
-from annotator import generate_annotation
 
 bot = Bot(token=os.environ.get("BOT_TOKEN"))
 
-def format_post(news, annotation):
+def format_post(news):
     text = f"📰 <b>{news['title']}</b>\n\n"
-    text += f"📍 <i>{annotation}</i>\n\n"
     text += f"💬 <i>{news['summary']}</i>"
     return text
 
@@ -20,8 +18,7 @@ async def post_news():
         return
 
     news = random.choice(news_list)
-    annotation = generate_annotation(news["title"], news["summary"])
-    caption = format_post(news, annotation)
+    caption = format_post(news)
 
     if news["image"]:
         await bot.send_photo(chat_id=CHANNEL_ID, photo=news["image"], caption=caption, parse_mode="HTML")
