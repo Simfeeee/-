@@ -37,7 +37,7 @@ def fetch_latest_news(feed_urls):
                 except Exception:
                     pass
 
-            summary = summary.replace("&nbsp;", " ").replace("&quot;", """)
+            summary = summary.replace("&nbsp;", " ").replace("&quot;", "\"")
 
             latest_news.append({
                 "title": title,
