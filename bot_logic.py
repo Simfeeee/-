@@ -10,6 +10,12 @@ bot = Bot(token=os.environ.get("BOT_TOKEN"))
 
 QUEUE_FILE = "news_queue.json"
 
+IMPORTANT_KEYWORDS = {
+    "🔥": ["взрыв", "пожар", "катастрофа", "ЧП", "бомба", "ураган", "смерть", "санкции", "забастовка"],
+    "🧠": ["прогноз", "анализ", "исследование", "обзор", "отчёт", "рейтинг", "эксперт"],
+    "⚡": ["экстренно", "молния", "срочно", "немедленно"]
+}
+
 def load_news_queue():
     if os.path.exists(QUEUE_FILE):
         with open(QUEUE_FILE, "r", encoding="utf-8") as f:
@@ -28,6 +34,13 @@ def update_news_queue():
         queue = load_news_queue() + new_items
         save_news_queue(queue)
 
+def highlight(title):
+    lower_title = title.lower()
+    for emoji, keywords in IMPORTANT_KEYWORDS.items():
+        if any(word in lower_title for word in keywords):
+            return f"[{emoji}] {title}"
+    return title
+
 async def post_news():
     update_news_queue()
     queue = load_news_queue()
@@ -38,9 +51,10 @@ async def post_news():
     news = queue.pop(0)
     save_news_queue(queue)
 
-    annotation = generate_annotation(news["title"], news["summary"])
+    title = highlight(news["title"])
+    annotation = generate_annotation(title, news["summary"])
     time_now = datetime.now().strftime("%H:%M")
-    message = f"📰 <b>{news['title']}</b>\n\n{annotation}\n\n🕓 {time_now} | 🔗 #новости #Россия"
+    message = f"📰 <b>{title}</b>\n\n{annotation}\n\n🕓 {time_now} | 🔗 #новости #Россия"
 
     if news.get("image"):
         await bot.send_photo(CHANNEL_ID, photo=news["image"], caption=message, parse_mode="HTML")
