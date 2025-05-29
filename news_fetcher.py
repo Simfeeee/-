@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 def extract_article_text(url):
     try:
         r = requests.get(url, timeout=5)
+        r.encoding = r.apparent_encoding  # 🔧 автоматическая установка правильной кодировки
         soup = BeautifulSoup(r.text, "html.parser")
         paragraphs = soup.find_all("p")
         text = " ".join(p.get_text() for p in paragraphs[:3])
@@ -31,7 +32,6 @@ def fetch_latest_news(feed_urls):
             link = entry.get("link")
             title = entry.get("title", "").strip()
 
-            # Извлекаем полный текст статьи
             summary = extract_article_text(link)
             if not summary:
                 summary = entry.get("summary", "")[:500]
@@ -44,6 +44,7 @@ def fetch_latest_news(feed_urls):
             if not image and link:
                 try:
                     r = requests.get(link, timeout=5)
+                    r.encoding = r.apparent_encoding
                     soup = BeautifulSoup(r.text, "html.parser")
                     og_image = soup.find("meta", property="og:image")
                     if og_image and og_image.get("content"):
