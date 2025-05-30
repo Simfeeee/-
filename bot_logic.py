@@ -1,12 +1,8 @@
 import os
-import asyncio
 from aiogram import Bot
-from aiogram.types import InputFile
 from news_fetcher import fetch_latest_news
 from annotator import generate_annotation
 from config import CHANNEL_USERNAME
-
-from aiogram import Bot
 
 async def post_news():
     try:
@@ -19,11 +15,11 @@ async def post_news():
             return
 
         news = news_items[0]
-print("news:", news)
-print("Ключи в news:", list(news.keys()))
+        print("news:", news)
+        print("Ключи в news:", list(news.keys()))
 
-summary = news.get('summary') or news.get('description') or news.get('text') or ''
-annotation = generate_annotation(news.get('title', ''), summary)
+        summary = news.get('summary') or news.get('description') or news.get('text') or ''
+        annotation = generate_annotation(news.get('title', ''), summary)
         channel_username = CHANNEL_USERNAME
 
         text = (
