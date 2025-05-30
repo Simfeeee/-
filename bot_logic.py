@@ -32,14 +32,14 @@ async def post_news():
 
         if image_url:
             try:
-                await bot.send_photo(chat_id=f"@{channel_username}", photo=image_url, caption=text)
+                await bot.send_photo(chat_id=channel_username, photo=image_url, caption=text)
                 print(f"Пост опубликован с фото в @{channel_username}")
             except Exception as e:
                 print(f"Не удалось отправить фото, ошибка: {e}. Пробую отправить только текст.")
-                await bot.send_message(chat_id=f"@{channel_username}", text=text)
+                await bot.send_message(chat_id=channel_username, text=text)
                 print(f"Пост опубликован без фото в @{channel_username}")
         else:
-            await bot.send_message(chat_id=f"@{channel_username}", text=text)
+            await bot.send_message(chat_id=channel_username, text=text)
             print(f"Пост опубликован без фото в @{channel_username}")
 
     except Exception as e:
