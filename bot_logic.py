@@ -6,7 +6,6 @@ from aiogram.enums import ParseMode
 
 CHANNEL_ID = "@russia_news_bot"
 
-# Примеры аннотаций
 ANNOTATIONS = [
     "🗯 А вот и горячее!",
     "⚡️ Свежак с ленты:",
@@ -24,20 +23,25 @@ async def post_news(bot: Bot):
     if not news_items:
         return
 
-    news = news_items[0]  # Только одна новость за раз
+    news = news_items[0]
     annotation = generate_annotation()
 
     title = news["title"]
     summary = news["summary"]
     image_url = news.get("image_url")
 
-    text = f"<b>{annotation}</b>
+    text = (
+        f"<b>{annotation}</b>
 
-📰 <b>{title}</b>
+"
+        f"📰 <b>{title}</b>
 
-{summary}
+"
+        f"{summary}
 
-🛰 {CHANNEL_ID}"
+"
+        f"🛰 {CHANNEL_ID}"
+    )
 
     if image_url:
         try:
