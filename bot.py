@@ -40,7 +40,6 @@ def set_user_lang(user_id, lang):
 @router.message(Command("start"))
 async def start_handler(msg: Message):
     await msg.answer("🤖 Бот запущен и работает!\nИспользуйте /log чтобы посмотреть статистику продвижения.")
-Используйте /log чтобы посмотреть статистику продвижения.")
 
 @router.message(Command("lang"))
 async def lang_handler(msg: Message):
