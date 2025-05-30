@@ -19,7 +19,7 @@ def fetch_latest_news():
         for entry in feed.entries[:1]:
             title = entry.title
             summary = BeautifulSoup(entry.summary, "html.parser").text
-            summary = summary.replace("&nbsp;", " ").replace("&quot;", """)
+            summary = summary.replace("&nbsp;", " ").replace("&quot;", '"')
             link = entry.link
             image_url = ""
 
