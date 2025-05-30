@@ -106,8 +106,12 @@ async def post_news():
 
 
 
-        text = ""
+        title = news.get('title', '')        summary = news.get('summary') or news.get('description') or news.get('text') or ''        text = f"""📰 <b>{annotation}</b>\n\n🧠 {title}\n\n📌 {summary}\n\n📡 {channel_username}"""
 
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="📢 Подписаться", url="https://t.me/fastnewsrussian")],
+            [InlineKeyboardButton(text="📤 Поделиться", switch_inline_query="")]
+        ])
 
 
 
@@ -166,7 +170,7 @@ async def post_news():
 
 
 
-                await bot.send_photo(chat_id=channel_username, photo=image_url, caption=text)
+        await bot.send_photo(chat_id=channel_username, photo=image_url, caption=text, parse_mode="HTML", reply_markup=keyboard)
 
 
 
@@ -182,7 +186,6 @@ async def post_news():
 
 
 
-                await bot.send_message(chat_id=channel_username, text=text)
 
 
 
@@ -194,7 +197,6 @@ async def post_news():
 
 
 
-            await bot.send_message(chat_id=channel_username, text=text)
 
 
 
