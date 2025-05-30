@@ -30,17 +30,6 @@ def fetch_latest_news():
             elif "image" in entry:
                 image_url = entry.image
 
-            
-            if not image_url:
-                try:
-                    response = requests.get(link, timeout=5)
-                    if response.ok:
-                        match = re.search(r'<meta property="og:image" content="([^"]+)"', response.text)
-                        if match:
-                            image_url = match.group(1)
-                except Exception as e:
-                    print(f"Не удалось получить og:image: {e}")
-
             news_items.append({
                 "title": title,
                 "summary": summary,
