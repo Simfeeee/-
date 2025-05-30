@@ -1,35 +1,38 @@
 import feedparser
+import requests
+from bs4 import BeautifulSoup
+
+RSS_FEEDS = [
+    "https://lenta.ru/rss",
+    "https://www.vedomosti.ru/rss/news",
+    "https://tass.ru/rss/v2.xml",
+    "https://ria.ru/export/rss2/archive/index.xml",
+    "https://www.interfax.ru/rss.asp",
+    "https://iz.ru/xml/rss/all.xml",
+]
 
 def fetch_latest_news():
-    sources = [
-        "https://lenta.ru/rss",
-        "https://www.rbc.ru/rss/",
-        "https://tass.ru/rss/v2.xml",
-        "https://www.vedomosti.ru/rss/news",
-        "https://ria.ru/export/rss2/archive/index.xml",
-    ]
-    news_list = []
+    news_items = []
 
-    for url in sources:
-        try:
-            feed = feedparser.parse(url)
-            for entry in feed.entries[:3]:
-                summary = entry.get("summary", "")
-                summary = summary.replace("&nbsp;", " ").replace("&quot;", '"')
-                image = ""
-                if "media_content" in entry:
-                    image = entry.media_content[0].get("url", "")
-                elif "links" in entry:
-                    for link in entry.links:
-                        if link.type.startswith("image"):
-                            image = link.href
-                            break
-                news_list.append({
-                    "title": entry.title,
-                    "summary": summary,
-                    "image_url": image
-                })
-        except Exception:
-            continue
+    for feed_url in RSS_FEEDS:
+        feed = feedparser.parse(feed_url)
+        for entry in feed.entries[:1]:
+            title = entry.title
+            summary = BeautifulSoup(entry.summary, "html.parser").text
+            summary = summary.replace("&nbsp;", " ").replace("&quot;", """)
+            link = entry.link
+            image_url = ""
 
-    return news_list
+            if hasattr(entry, "media_content"):
+                image_url = entry.media_content[0]["url"]
+            elif "image" in entry:
+                image_url = entry.image
+
+            news_items.append({
+                "title": title,
+                "summary": summary,
+                "url": link,
+                "image": image_url
+            })
+
+    return news_items

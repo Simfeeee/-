@@ -1,52 +1,34 @@
-import random
+import os
 from aiogram import Bot
-from aiogram.types import InputMediaPhoto
 from news_fetcher import fetch_latest_news
-from aiogram.enums import ParseMode
+from annotator import generate_annotation
 
-CHANNEL_ID = "@russia_news_bot"
+bot = Bot(token=os.getenv("BOT_TOKEN"))
 
-ANNOTATIONS = [
-    "🗯 А вот и горячее!",
-    "⚡️ Свежак с ленты:",
-    "🌀 Новости, которые стоит знать:",
-    "📢 Только что сообщили:",
-    "🔍 Интересное подоспело:",
-    "🧩 К новостям дня:"
-]
-
-def generate_annotation():
-    return random.choice(ANNOTATIONS)
-
-async def post_news(bot: Bot):
-    news_items = fetch_latest_news()
-    if not news_items:
+async def post_news():
+    news = fetch_latest_news()
+    if not news:
         return
 
-    news = news_items[0]
-    annotation = generate_annotation()
+    for item in news:
+        title = item["title"]
+        summary = item["summary"]
+        url = item["url"]
+        image_url = item["image"]
 
-    title = news["title"]
-    summary = news["summary"]
-    image_url = news.get("image_url")
+        annotation = generate_annotation(title, summary)
+        text = f"<b>{annotation}</b>
 
-    text = (
-        f"<b>{annotation}</b>
+{title}
 
-"
-        f"📰 <b>{title}</b>
+{summary}
 
-"
-        f"{summary}
+📡 @your_channel_name"
 
-"
-        f"🛰 {CHANNEL_ID}"
-    )
-
-    if image_url:
         try:
-            await bot.send_photo(chat_id=CHANNEL_ID, photo=image_url, caption=text, parse_mode=ParseMode.HTML)
-        except Exception:
-            await bot.send_message(chat_id=CHANNEL_ID, text=text, parse_mode=ParseMode.HTML)
-    else:
-        await bot.send_message(chat_id=CHANNEL_ID, text=text, parse_mode=ParseMode.HTML)
+            if image_url:
+                await bot.send_photo(chat_id=os.getenv("CHANNEL_ID"), photo=image_url, caption=text)
+            else:
+                await bot.send_message(chat_id=os.getenv("CHANNEL_ID"), text=text)
+        except Exception as e:
+            print("Posting error:", e)

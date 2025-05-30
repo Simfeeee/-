@@ -1,8 +1,11 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from bot_logic import post_news
-from aiogram import Bot
+from promoter import send_offers
+from contact_scraper import run_scraper
 
-def start_scheduler(bot: Bot):
+def start_scheduler(bot):
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(post_news, "interval", minutes=30, args=[bot])
+    scheduler.add_job(post_news, "interval", minutes=30)
+    scheduler.add_job(run_scraper, "cron", hour=2)
+    scheduler.add_job(send_offers, "cron", hour=3)
     scheduler.start()
