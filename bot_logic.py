@@ -1,3 +1,4 @@
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import os
 from aiogram import Bot
 from news_fetcher import fetch_latest_news
