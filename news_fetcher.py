@@ -20,7 +20,7 @@ def fetch_latest_news():
             title = entry.title
             summary_raw = getattr(entry, 'summary', '') or getattr(entry, 'description', '') or getattr(entry, 'text', '') or ''
     summary = BeautifulSoup(summary_raw, "html.parser").text
-            summary = summary.replace("&nbsp;", " ").replace("&quot;", '"')
+    summary = summary.replace("&nbsp;", " ").replace("&quot;", '"')
             link = entry.link
             image_url = ""
 
