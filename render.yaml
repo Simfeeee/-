@@ -1,0 +1,10 @@
+
+services:
+  - type: web
+    name: fastnewsbot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: BOT_TOKEN
+        value: ВСТАВЬ_ТВОЙ_ТОКЕН_ОТ_BOTFATHER
