@@ -15,7 +15,7 @@ bot = Bot(
 dp = Dispatcher()
 
 async def main():
-    start_scheduler(bot)  # Запуск планировщика
+    start_scheduler()  # Запуск планировщика
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
