@@ -4,7 +4,7 @@ import logging
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from src.utils import fetch_news, format_post, send_post
+from utils import fetch_news, format_post, send_post
 
 load_dotenv()
 
