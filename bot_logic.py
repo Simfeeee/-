@@ -17,13 +17,13 @@ async def post_news():
         image_url = item["image"]
 
         annotation = generate_annotation(title, summary)
-        text = f"<b>{annotation}</b>
+        text = f"<b>{annotation}</b>"
 
 {title}
 
 {summary}
 
-📡 @your_channel_name"
+"📡 @your_channel_name"
 
         try:
             if image_url:
