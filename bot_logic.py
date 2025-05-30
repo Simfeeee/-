@@ -5,6 +5,10 @@ from annotator import generate_annotation
 from config import CHANNEL_USERNAME
 
 async def post_news():
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="📢 Подписаться", url="https://t.me/fastnewsrussian")],
+        [InlineKeyboardButton(text="📤 Поделиться", switch_inline_query="")]
+    ])
     try:
         TOKEN = os.getenv("BOT_TOKEN")
         bot = Bot(token=TOKEN)
