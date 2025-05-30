@@ -23,10 +23,10 @@ async def fetch_news():
 
 async def format_post(item):
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    prompt = f"Сделай краткое и интересное резюме новости: {item['title']}
-
-{item['summary']}"
     try:
+        prompt = f"""Сделай краткое и интересное резюме новости на русском языке.
+Заголовок: {item['title']}
+Описание: {item['summary']}"""
         gpt_response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
@@ -36,11 +36,11 @@ async def format_post(item):
     except Exception:
         summary = item["summary"][:200] + "..."
 
-    text = f"📰 <b>{item['title']}</b>
+    text = f"""📰 <b>{item['title']}</b>
 
 {summary}
 
-@fastnewsrussian 📡"
+@fastnewsrussian 📡"""
     return text
 
 async def send_post(bot, channel_id, text):
