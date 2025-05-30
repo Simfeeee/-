@@ -20,13 +20,21 @@ async def post_news():
 
         summary = news.get('summary') or news.get('description') or news.get('text') or ''
         annotation = generate_annotation(news.get('title', ''), summary)
+        if not annotation:
+            annotation = news.get('title', 'Без заголовка')
+
         channel_username = CHANNEL_USERNAME
 
-        text = (
-            f"<b>{annotation}</b>\n"
-            f"{summary}\n\n"
-            f"📰 @{channel_username}"
-        )
+        text = ""
+
+        if annotation:
+            text += f"<b>{annotation}</b>\n"
+
+        if summary:
+            text += f"{summary}\n\n"
+
+        text += f"📰 {channel_username}"
+
 
         image_url = news.get('image', '')
 
