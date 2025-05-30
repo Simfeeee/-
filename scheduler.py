@@ -1,16 +1,18 @@
-import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from bot_logic import post_news
 from promoter import send_offers
 from contact_scraper import run_scraper
-from bot_logic import post_news
 
 def start_scheduler():
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(post_news, "interval", minutes=15)  # Постинг новостей
-    scheduler.add_job(run_scraper, "interval", hours=24)  # Поиск каналов
-    scheduler.add_job(send_offers, "interval", hours=24)  # Отправка предложений
-    scheduler.start()
 
-if __name__ == "__main__":
-    start_scheduler()
-    asyncio.get_event_loop().run_forever()
+    # Публикуем новости каждые 15 минут
+    scheduler.add_job(post_news, "interval", minutes=15)
+
+    # Запускаем парсер каждый день в 01:00
+    scheduler.add_job(run_scraper, "cron", hour=1, minute=0)
+
+    # Рассылаем предложения в 02:00
+    scheduler.add_job(send_offers, "cron", hour=2, minute=0)
+
+    scheduler.start()
