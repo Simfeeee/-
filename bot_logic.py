@@ -18,8 +18,9 @@ async def post_news():
         return
     news = news_items[0]
     annotation = generate_annotation(news['title'], news['summary'])
-    summary = news['summary']
-    channel_username = CHANNEL_USERNAME
+    summary = news.get('summary') or news.get('description') or news.get('text') or ''
+annotation = generate_annotation(news.get('title', ''), summary)
+
     text = (
         f"<b>{annotation}</b>\n"
         f"{summary}\n\n"
