@@ -1,5 +1,6 @@
 aiogram>=3.4
-feedparser
-aiohttp
-apscheduler
 requests
+beautifulsoup4
+feedparser
+apscheduler
+openai
