@@ -1,3 +1,4 @@
+
 import os
 import aiohttp
 import logging
@@ -21,7 +22,7 @@ FAKE_ANNOTATIONS = [
     "Они там совсем уже?",
     "Это уже не смешно.",
     "Комментировать бессмысленно.",
-    "Без комментариев 😐",
+    "Без комментариев.",
     "Новость, которая заслуживает мем.",
     "Как вам такое, Илон Маск?",
 ]
@@ -80,8 +81,7 @@ async def format_post(item):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                InlineKeyboardButton(text="👁 Подписаться", url=f"https://t.me/{CHANNEL_NICK.strip('@')}"),
-                InlineKeyboardButton(text="📢 Поделиться", switch_inline_query=title[:100])
+                InlineKeyboardButton(text="👁 Подписаться", url=f"https://t.me/{CHANNEL_NICK.strip('@')}")
             ]
         ]
     )
@@ -91,10 +91,11 @@ async def send_post(text, image_url, keyboard):
     bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
     for chat_id in CHAT_IDS:
         try:
-            if image_url:
-                await bot.send_photo(chat_id=chat_id.strip(), photo=image_url, caption=text, reply_markup=keyboard)
-            else:
-                await bot.send_message(chat_id=chat_id.strip(), text=text, reply_markup=keyboard)
+            if chat_id.strip():
+                if image_url:
+                    await bot.send_photo(chat_id=chat_id.strip(), photo=image_url, caption=text, reply_markup=keyboard)
+                else:
+                    await bot.send_message(chat_id=chat_id.strip(), text=text, reply_markup=keyboard)
         except Exception as e:
             logging.warning(f"Ошибка при отправке поста: {e}")
     await bot.session.close()
