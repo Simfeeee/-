@@ -5,3 +5,4 @@ python-dotenv
 requests>=2.20
 tqdm
 beautifulsoup4
+feedparser
