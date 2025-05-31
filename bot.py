@@ -56,19 +56,21 @@ def run_bot():
     dp.run_polling(bot)
 
 
-async def auto_posting_loop():
+# === Автопостинг (каждые 30 минут) ===
+async def scheduler():
     while True:
-        logging.info("⏰ Автопостинг: публикую одну новость...")
         try:
-            await process_news()
+            logging.info("🔄 Автоматическая публикация новости")
+            news = fetch_news()
+            for item in news:
+                if is_posted(item["link"]):
+                    continue
+                text, image_url, keyboard = await format_post(item)
+                await send_post(text, image_url, keyboard)
+                add_posted_link(item["link"])
+                break
         except Exception as e:
-            logging.error(f"Ошибка при автопостинге: {e}")
-        await asyncio.sleep(POST_INTERVAL * 60)
+            logging.error(f"Ошибка в автопостинге: {e}")
+        await asyncio.sleep(1800)
+# === Конец автопостинга
 
-
-
-def run_bot():
-    logging.basicConfig(level=logging.INFO)
-    loop = asyncio.get_event_loop()
-    loop.create_task(auto_posting_loop())
-    loop.run_until_complete(dp.start_polling(bot))
