@@ -1,51 +1,44 @@
-import os
 import asyncio
 import logging
-import datetime
-from dotenv import load_dotenv
-from aiogram import Bot, Dispatcher, types
+import os
+
+from aiogram import Bot, Dispatcher, F
+from aiogram.types import Message
+from aiogram.enums import ParseMode
 from aiogram.filters import Command
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from dotenv import load_dotenv
+
 from utils import fetch_news, format_post, send_post
 
 load_dotenv()
 
-BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
-CHANNEL_ID = os.getenv("TELEGRAM_CHANNEL")
-INTERVAL = int(os.getenv("POST_INTERVAL_MIN", 30))
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHANNEL_ID = os.getenv("CHANNEL_ID", "@fastnewsrussian")
 
-bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
+bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher()
 
+@dp.message(Command("start"))
+async def start_handler(message: Message):
+    await message.answer("🤖 Бот запущен и готов публиковать новости!")
+
 @dp.message(Command("обновить"))
-async def handle_update_command(message: types.Message):
-    news_items = await fetch_news()
-    if news_items:
-        post, img_url, keyboard = await format_post(news_items[0])
-        if post:
-            await send_post(bot, CHANNEL_ID, post, img_url, keyboard)
-            await message.reply("Обновление отправлено в канал.")
-        else:
-            await message.reply("Не удалось сгенерировать пост.")
-    else:
-        await message.reply("Нет свежих новостей.")
+async def update_news(message: Message):
+    await message.answer("🔄 Обновляю новости...")
+    await process_news()
 
-async def run_bot():
+async def process_news():
+    logging.info("Получение новостей...")
+    news = await fetch_news()
+    logging.info(f"Найдено новостей: {len(news)}")
+
+    for item in news:
+        text, image_url, keyboard = await format_post(item)
+        if text:
+            await send_post(bot, CHANNEL_ID, text, image_url=image_url, keyboard=keyboard)
+            await asyncio.sleep(5)
+
+def run_bot():
     logging.basicConfig(level=logging.INFO)
-    asyncio.create_task(background_news_task())
-    await dp.start_polling(bot)
+    asyncio.run(dp.start_polling(bot))
 
-async def background_news_task():
-    while True:
-        try:
-            logging.info(f"[{datetime.datetime.now()}] Получение новостей...")
-            news_items = await fetch_news()
-            logging.info(f"Найдено новостей: {len(news_items)}")
-            for item in news_items:
-                post, img_url, keyboard = await format_post(item)
-                if post:
-                    await send_post(bot, CHANNEL_ID, post, img_url, keyboard)
-                    logging.info("Отправлено в канал")
-        except Exception as e:
-            logging.exception("Ошибка в фоновом задании")
-        await asyncio.sleep(INTERVAL * 60)

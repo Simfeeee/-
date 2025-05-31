@@ -1,4 +1,4 @@
-aiogram==2.25.1
+aiogram==3.4.1
 feedparser
 aiohttp
 openai==0.28.1
