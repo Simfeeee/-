@@ -1,5 +1,7 @@
 aiogram==3.4.1
-feedparser
 aiohttp
 openai==0.28.1
 python-dotenv
+requests>=2.20
+tqdm
+beautifulsoup4
