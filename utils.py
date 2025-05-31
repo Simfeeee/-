@@ -99,11 +99,34 @@ async def get_backup_image(query):
 
 
 
+
 async def format_post(item):
     title = item.get("title", "")
     link = item.get("link", "")
     summary = item.get("summary", "") or title
-    annotation = await generate_annotation(summary)
+    annotation = await generate_annotation(title, summary)
+
+    formatted_text = (
+        "▔▔▔▔▔▔▔▔▔▔▔▔▔▔\n"
+        f"📢 <b>{title}</b>\n\n"
+        f"🧱 {annotation}\n\n"
+        f"💥 Этот факт уже вызвал резонанс в соцсетях.\n"
+        f"🗣 Мнения разделились, но ситуация развивается.\n\n"
+        "🇷🇺 @fastnewsrussian\n"
+        "▁▁▁▁▁▁▁▁▁▁▁▁▁▁"
+    )
+
+    image_url = await get_og_image(link) or await get_backup_image(title)
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="👁 Подписаться", url="https://t.me/fastnewsrussian")
+            ]
+        ]
+    )
+    return formatted_text, image_url, keyboard
+
 
     formatted_text = (
         "▔▔▔▔▔▔▔▔▔▔▔▔▔▔\n"
