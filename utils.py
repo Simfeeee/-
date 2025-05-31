@@ -72,12 +72,29 @@ async def get_backup_image(query):
         return None
 
 
+
 async def format_post(item):
     title = item.get("title", "")
     link = item.get("link", "")
     annotation = random.choice(FAKE_ANNOTATIONS)
-    text = f"📰 <b>{title}</b>\n\n🧠 {annotation}\n\n👉 Подписывайся на главное: {CHANNEL_NICK}\n#Skylibot"
+
+    text = (
+        f"📰 <b>{title}</b>\n\n"
+        f"🧠 {annotation}\n\n"
+        f"👉 Подробнее читай в канале: https://t.me/{CHANNEL_NICK.strip('@')}"
+    )
+
     image_url = await get_og_image(link) or await get_backup_image(title)
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="👁 Подписаться", url=f"https://t.me/{CHANNEL_NICK.strip('@')}")
+            ]
+        ]
+    )
+    return text, image_url, keyboard
+
 
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
