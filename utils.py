@@ -85,12 +85,104 @@ async def format_post(item):
         "выборы": "election",
         "экономика": "economy"
     }
+    stopwords = {"и", "в", "на", "о", "от", "с", "по", "это", "он", "она", "оно", "новости", "как", "из"}
+    keyword = None
+    for word in item['title'].split():
+        clean = word.strip(".,!?\"'():").capitalize()
+        if clean in KEYWORD_OVERRIDES:
+            keyword = KEYWORD_OVERRIDES[clean]
+            break
+        if not keyword and clean.lower() not in stopwords:
+            keyword = clean
+    if not image_url and keyword:
+        image_url = f"https://source.unsplash.com/800x600/?{keyword}"
+
+    # 📷 Умная генерация изображения по теме
+    KEYWORD_OVERRIDES = {
+        "Путин": "Vladimir Putin",
+        "Зеленский": "Zelensky",
+        "война": "war",
+        "Украина": "Ukraine",
+        "НАТО": "NATO",
+        "Трамп": "Donald Trump",
+        "Маск": "Elon Musk",
+        "Илон": "Elon Musk",
+        "пожар": "fire",
+        "протест": "protest",
+        "землетрясение": "earthquake",
+        "выборы": "election",
+        "экономика": "economy"
+    }
 
     stopwords = {"и", "в", "на", "о", "от", "с", "по", "это", "он", "она", "оно", "новости", "как", "из"}
     keyword = None
 
     for word in item['title'].split():
-        clean = word.strip(".,!?"'():").capitalize()
+        clean = word.strip(".,!?\"'():").capitalize()
+        if clean in KEYWORD_OVERRIDES:
+            keyword = KEYWORD_OVERRIDES[clean]
+            break
+        if not keyword and clean.lower() not in stopwords:
+            keyword = clean
+
+    if not image_url and keyword:
+        image_url = f"https://source.unsplash.com/800x600/?{keyword}"
+
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🔁 Поделиться", switch_inline_query=""),
+         InlineKeyboardButton(text="➕ Подписаться", url="https://t.me/fastnewsrussian")]
+    ])
+
+    image_url = item.get("image")
+    # 📷 Умная генерация изображения по теме
+    KEYWORD_OVERRIDES = {
+        "Путин": "Vladimir Putin",
+        "Зеленский": "Zelensky",
+        "война": "war",
+        "Украина": "Ukraine",
+        "НАТО": "NATO",
+        "Трамп": "Donald Trump",
+        "Маск": "Elon Musk",
+        "Илон": "Elon Musk",
+        "пожар": "fire",
+        "протест": "protest",
+        "землетрясение": "earthquake",
+        "выборы": "election",
+        "экономика": "economy"
+    }
+    stopwords = {"и", "в", "на", "о", "от", "с", "по", "это", "он", "она", "оно", "новости", "как", "из"}
+    keyword = None
+    for word in item['title'].split():
+        clean = word.strip(".,!?\"'():").capitalize()
+        if clean in KEYWORD_OVERRIDES:
+            keyword = KEYWORD_OVERRIDES[clean]
+            break
+        if not keyword and clean.lower() not in stopwords:
+            keyword = clean
+    if not image_url and keyword:
+        image_url = f"https://source.unsplash.com/800x600/?{keyword}"
+    # 📷 Умная генерация изображения по теме
+    KEYWORD_OVERRIDES = {
+        "Путин": "Vladimir Putin",
+        "Зеленский": "Zelensky",
+        "война": "war",
+        "Украина": "Ukraine",
+        "НАТО": "NATO",
+        "Трамп": "Donald Trump",
+        "Маск": "Elon Musk",
+        "Илон": "Elon Musk",
+        "пожар": "fire",
+        "протест": "protest",
+        "землетрясение": "earthquake",
+        "выборы": "election",
+        "экономика": "economy"
+    }
+
+    stopwords = {"и", "в", "на", "о", "от", "с", "по", "это", "он", "она", "оно", "новости", "как", "из"}
+    keyword = None
+
+    for word in item['title'].split():
+clean = word.strip(".,!?\"'():").capitalize()
         if clean in KEYWORD_OVERRIDES:
             keyword = KEYWORD_OVERRIDES[clean]
             break
