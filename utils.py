@@ -2,6 +2,7 @@ import aiohttp
 import feedparser
 import openai
 import os
+import logging
 
 async def fetch_news():
     urls = [
@@ -33,7 +34,8 @@ async def format_post(item):
             max_tokens=150,
         )
         summary = gpt_response["choices"][0]["message"]["content"]
-    except Exception:
+    except Exception as e:
+        logging.warning(f"GPT ошибка: {e}")
         summary = item["summary"][:200] + "..."
 
     text = f"""📰 <b>{item['title']}</b>
