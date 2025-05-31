@@ -1,3 +1,5 @@
+posted_links = set()
+
 import asyncio
 import logging
 import os
@@ -15,6 +17,9 @@ load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID", "@fastnewsrussian")
 
+if not BOT_TOKEN:
+    raise RuntimeError("❌ Переменная окружения BOT_TOKEN не установлена!")
+
 bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher()
 
@@ -28,6 +33,25 @@ async def update_news(message: Message):
     await process_news()
 
 async def process_news():
+    global posted_links
+    logging.info("Получение новостей...")
+    news = await fetch_news()
+    logging.info(f"Найдено новостей: {len(news)}")
+    for item in news:
+        link = item.get('link')
+        if link not in posted_links:
+            text, image_url, keyboard = await format_post(item)
+            if text:
+                await send_post(bot, CHANNEL_ID, text, image_url=image_url, keyboard=keyboard)
+                posted_links.add(link)
+                break
+    else:
+        logging.info("Нет новых новостей для публикации.")
+
+async def news_loop():
+    while True:
+        await process_news()
+        await asyncio.sleep(1800)  # 30 минут
     logging.info("Получение новостей...")
     news = await fetch_news()
     logging.info(f"Найдено новостей: {len(news)}")
@@ -40,5 +64,6 @@ async def process_news():
 
 def run_bot():
     logging.basicConfig(level=logging.INFO)
+    asyncio.run(process_news())
+    asyncio.create_task(news_loop())
     asyncio.run(dp.start_polling(bot))
-
