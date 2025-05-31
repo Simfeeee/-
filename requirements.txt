@@ -2,3 +2,4 @@ aiogram==2.25.1
 feedparser
 aiohttp
 openai==0.28.1
+python-dotenv
