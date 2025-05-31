@@ -25,52 +25,18 @@ async def start_handler(message: Message):
 
 @dp.message(Command("обновить"))
 async def manual_update(message: Message):
-    await message.answer("🔄 Публикую одну новость...")
-    await process_news()
+    await message.answer("🔄 Ищу свежую новость...")
 
-
-async def process_news():
-    logging.info("Получение новостей...")
     news = await fetch_news()
-    logging.info(f"Найдено новостей: {len(news)}")
-
-    if news:
-        item = news[0]  # только первая новость
+    for item in news:
+        if is_posted(item["link"]):
+            continue
         try:
             text, image_url, keyboard = await format_post(item)
             await send_post(text, image_url, keyboard)
+            add_posted_link(item["link"])
+            break
         except Exception as e:
-            logging.warning(f"Ошибка при отправке поста: {e}")
-
-
-async def scheduler():
-    while True:
-        await process_news()
-        await asyncio.sleep(POST_INTERVAL * 60)
-
-
-def run_bot():
-    logging.basicConfig(level=logging.INFO)
-    loop = asyncio.get_event_loop()
-    loop.create_task(scheduler())
-    dp.run_polling(bot)
-
-
-# === Автопостинг (каждые 30 минут) ===
-async def scheduler():
-    while True:
-        try:
-            logging.info("🔄 Автоматическая публикация новости")
-            news = fetch_news()
-            for item in news:
-                if is_posted(item["link"]):
-                    continue
-                text, image_url, keyboard = await format_post(item)
-                await send_post(text, image_url, keyboard)
-                add_posted_link(item["link"])
-                break
-        except Exception as e:
-            logging.error(f"Ошибка в автопостинге: {e}")
-        await asyncio.sleep(1800)
-# === Конец автопостинга
-
+            logging.warning(f"⚠️ Ошибка при публикации новости: {e}")
+    else:
+        await message.answer("✅ Новых новостей пока нет.")
