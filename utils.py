@@ -9,11 +9,11 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 import openai
 
+
 async def generate_annotation(text):
     try:
         prompt = (
-            "Прочитай новость и сформулируй краткий вывод (1-2 предложения), как в СМИ:
-\n"
+            "Прочитай новость и сформулируй краткий вывод (1–2 предложения), как в СМИ:\n\n"
             f"{text}\n\n"
             "Вывод:"
         )
@@ -27,6 +27,7 @@ async def generate_annotation(text):
     except Exception as e:
         logging.warning(f"⚠️ GPT ошибка: {e}")
         return random.choice(FAKE_ANNOTATIONS)
+
 
 from aiogram import Bot
 
