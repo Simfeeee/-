@@ -6,6 +6,28 @@ import random
 import feedparser
 from bs4 import BeautifulSoup
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+import openai
+
+async def generate_annotation(text):
+    try:
+        prompt = (
+            "Прочитай новость и сформулируй краткий вывод (1-2 предложения), как в СМИ:
+\n"
+            f"{text}\n\n"
+            "Вывод:"
+        )
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=prompt,
+            max_tokens=60,
+            temperature=0.7,
+        )
+        return response.choices[0].text.strip()
+    except Exception as e:
+        logging.warning(f"⚠️ GPT ошибка: {e}")
+        return random.choice(FAKE_ANNOTATIONS)
+
 from aiogram import Bot
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -73,10 +95,78 @@ async def get_backup_image(query):
 
 
 
+
+
+
 async def format_post(item):
     title = item.get("title", "")
     link = item.get("link", "")
-    annotation = random.choice(FAKE_ANNOTATIONS)
+    summary = item.get("summary", "") or title
+    annotation = await generate_annotation(summary)
+
+    formatted_text = (
+        "▔▔▔▔▔▔▔▔▔▔▔▔▔▔\n"
+        f"📢 <b>{title}</b>\n\n"
+        f"🧱 {annotation}\n\n"
+        f"💥 Этот факт уже вызвал резонанс в соцсетях.\n"
+        f"🗣 Мнения разделились, но ситуация развивается.\n\n"
+        f"🔥 312   ❤️ 142   💬 76   😂 24\n\n"
+        f"🔗 t.me/{CHANNEL_NICK.strip('@')}\n"
+        "▁▁▁▁▁▁▁▁▁▁▁▁▁▁"
+    )
+
+    image_url = await get_og_image(link) or await get_backup_image(title)
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="👁 Подписаться", url=f"https://t.me/{CHANNEL_NICK.strip('@')}")
+            ]
+        ]
+    )
+    return formatted_text, image_url, keyboard
+
+
+    formatted_text = (
+        f"<b>{title}</b>\n\n"
+        f"📍 {annotation}\n"
+        f"💥 Этот факт уже вызвал резонанс в соцсетях.\n"
+        f"🗣 Мнения разделились, но ситуация развивается.\n\n"
+        f"🔹 t.me/{CHANNEL_NICK.strip('@')}"
+    )
+
+    image_url = await get_og_image(link) or await get_backup_image(title)
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="👁 Подписаться", url=f"https://t.me/{CHANNEL_NICK.strip('@')}")
+            ]
+        ]
+    )
+    return formatted_text, image_url, keyboard
+
+
+    # Подготовим блок в виде абзацев с эмодзи
+    formatted_text = (
+        f"<b>{title}</b>\n\n"
+        f"📍 {annotation}\n"
+        f"💥 Этот факт уже вызвал резонанс в соцсетях.\n"
+        f"🗣 Мнения разделились, но ситуация развивается.\n\n"
+        f"🔹 t.me/{CHANNEL_NICK.strip('@')}"
+    )
+
+    image_url = await get_og_image(link) or await get_backup_image(title)
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="👁 Подписаться", url=f"https://t.me/{CHANNEL_NICK.strip('@')}")
+            ]
+        ]
+    )
+    return formatted_text, image_url, keyboard
+
 
     text = (
         f"📰 <b>{title}</b>\n\n"
