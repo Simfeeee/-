@@ -31,7 +31,10 @@ async def handle_update_command(message: types.Message):
 
 async def run_bot():
     logging.basicConfig(level=logging.INFO)
-    asyncio.create_task(dp.start_polling(bot))
+    asyncio.create_task(background_news_task())
+    await dp.start_polling(bot)
+
+async def background_news_task():
     while True:
         try:
             logging.info(f"[{datetime.datetime.now()}] Получение новостей...")
@@ -43,5 +46,5 @@ async def run_bot():
                     await send_post(bot, CHANNEL_ID, post)
                     logging.info("Отправлено в канал")
         except Exception as e:
-            logging.exception("Ошибка в основном цикле")
+            logging.exception("Ошибка в фоновом задании")
         await asyncio.sleep(INTERVAL * 60)
