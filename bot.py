@@ -5,6 +5,7 @@ import datetime
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from utils import fetch_news, format_post, send_post
 
 load_dotenv()
@@ -20,9 +21,9 @@ dp = Dispatcher()
 async def handle_update_command(message: types.Message):
     news_items = await fetch_news()
     if news_items:
-        post = await format_post(news_items[0])
+        post, img_url, keyboard = await format_post(news_items[0])
         if post:
-            await bot.send_message(chat_id=CHANNEL_ID, text=post)
+            await send_post(bot, CHANNEL_ID, post, img_url, keyboard)
             await message.reply("Обновление отправлено в канал.")
         else:
             await message.reply("Не удалось сгенерировать пост.")
@@ -41,9 +42,9 @@ async def background_news_task():
             news_items = await fetch_news()
             logging.info(f"Найдено новостей: {len(news_items)}")
             for item in news_items:
-                post = await format_post(item)
+                post, img_url, keyboard = await format_post(item)
                 if post:
-                    await send_post(bot, CHANNEL_ID, post)
+                    await send_post(bot, CHANNEL_ID, post, img_url, keyboard)
                     logging.info("Отправлено в канал")
         except Exception as e:
             logging.exception("Ошибка в фоновом задании")
