@@ -104,7 +104,7 @@ async def format_post(item):
     title = item.get("title", "")
     link = item.get("link", "")
     summary = item.get("summary", "") or title
-    annotation = await generate_annotation(title, summary)
+    annotation = await generate_annotation(f"{title}\n\n{summary}")
 
     formatted_text = (
         "▔▔▔▔▔▔▔▔▔▔▔▔▔▔\n"
