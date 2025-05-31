@@ -2,4 +2,4 @@ aiogram==3.2.0
 aiohttp
 feedparser
 python-dotenv
-openai
+openai==0.28.1

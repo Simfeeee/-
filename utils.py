@@ -90,7 +90,7 @@ async def format_post(item):
         image_url = f"https://source.unsplash.com/800x600/?{keyword}"
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🔁 Поделиться", switch_inline_query=""),
+        [InlineKeyboardButton(text="🔁 Поделиться", url="https://t.me/share/url?url=https://t.me/fastnewsrussian"),
          InlineKeyboardButton(text="➕ Подписаться", url="https://t.me/fastnewsrussian")]
     ])
 
