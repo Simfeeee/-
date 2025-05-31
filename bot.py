@@ -1,10 +1,10 @@
+
 import os
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher, types
-from aiogram.enums import ParseMode
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram import F
+from aiogram import Bot, Dispatcher, F
+from aiogram.types import Message
+from aiogram.filters import Command
 from dotenv import load_dotenv
 
 from utils import fetch_news, format_post, send_post
@@ -12,42 +12,45 @@ from utils import fetch_news, format_post, send_post
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+POST_INTERVAL = int(os.getenv("POST_INTERVAL", 30))  # в минутах
 
-bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher()
+bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
+
+
+@dp.message(Command("start"))
+async def start_handler(message: Message):
+    await message.answer("✅ Skylibot запущен и ждёт новостей.")
+
+
+@dp.message(Command("обновить"))
+async def manual_update(message: Message):
+    await message.answer("🔄 Публикую одну новость...")
+    await process_news()
+
 
 async def process_news():
     logging.info("Получение новостей...")
     news = await fetch_news()
     logging.info(f"Найдено новостей: {len(news)}")
-    for item in news:
-        text, image_url, keyboard = await format_post(item)
-        if text is None:
-            continue
-        await send_post(text, image_url, keyboard)
-        await asyncio.sleep(1)
 
-async def news_loop():
+    if news:
+        item = news[0]  # только первая новость
+        try:
+            text, image_url, keyboard = await format_post(item)
+            await send_post(text, image_url, keyboard)
+        except Exception as e:
+            logging.warning(f"Ошибка при отправке поста: {e}")
+
+
+async def scheduler():
     while True:
         await process_news()
-        await asyncio.sleep(1800)  # каждые 30 минут
+        await asyncio.sleep(POST_INTERVAL * 60)
 
-@dp.message(F.text == "/start")
-async def cmd_start(message: types.Message):
-    await message.answer("Бот работает и будет публиковать новости каждые 30 минут.")
-
-@dp.message(F.text == "/обновить")
-async def cmd_update(message: types.Message):
-    await message.answer("Обновляю новости...")
-    await process_news()
-    await message.answer("Готово!")
-
-async def main():
-    await process_news()
-    asyncio.create_task(news_loop())
-    await dp.start_polling(bot)
 
 def run_bot():
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    loop = asyncio.get_event_loop()
+    loop.create_task(scheduler())
+    dp.run_polling(bot)
