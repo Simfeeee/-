@@ -1,13 +1,10 @@
-posted_links = set()
-
+import os
 import asyncio
 import logging
-import os
-
-from aiogram import Bot, Dispatcher, F
-from aiogram.types import Message
+from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
-from aiogram.filters import Command
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram import F
 from dotenv import load_dotenv
 
 from utils import fetch_news, format_post, send_post
@@ -15,55 +12,42 @@ from utils import fetch_news, format_post, send_post
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHANNEL_ID = os.getenv("CHANNEL_ID", "@fastnewsrussian")
-
-if not BOT_TOKEN:
-    raise RuntimeError("❌ Переменная окружения BOT_TOKEN не установлена!")
+CHAT_ID = os.getenv("CHAT_ID")
 
 bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher()
 
-@dp.message(Command("start"))
-async def start_handler(message: Message):
-    await message.answer("🤖 Бот запущен и готов публиковать новости!")
-
-@dp.message(Command("обновить"))
-async def update_news(message: Message):
-    await message.answer("🔄 Обновляю новости...")
-    await process_news()
-
 async def process_news():
-    global posted_links
     logging.info("Получение новостей...")
     news = await fetch_news()
     logging.info(f"Найдено новостей: {len(news)}")
     for item in news:
-        link = item.get('link')
-        if link not in posted_links:
-            text, image_url, keyboard = await format_post(item)
-            if text:
-                await send_post(bot, CHANNEL_ID, text, image_url=image_url, keyboard=keyboard)
-                posted_links.add(link)
-                break
-    else:
-        logging.info("Нет новых новостей для публикации.")
+        text, image_url, keyboard = await format_post(item)
+        if text is None:
+            continue
+        await send_post(text, image_url, keyboard)
+        await asyncio.sleep(1)
 
 async def news_loop():
     while True:
         await process_news()
-        await asyncio.sleep(1800)  # 30 минут
-    logging.info("Получение новостей...")
-    news = await fetch_news()
-    logging.info(f"Найдено новостей: {len(news)}")
+        await asyncio.sleep(1800)  # каждые 30 минут
 
-    for item in news:
-        text, image_url, keyboard = await format_post(item)
-        if text:
-            await send_post(bot, CHANNEL_ID, text, image_url=image_url, keyboard=keyboard)
-            await asyncio.sleep(5)
+@dp.message(F.text == "/start")
+async def cmd_start(message: types.Message):
+    await message.answer("Бот работает и будет публиковать новости каждые 30 минут.")
+
+@dp.message(F.text == "/обновить")
+async def cmd_update(message: types.Message):
+    await message.answer("Обновляю новости...")
+    await process_news()
+    await message.answer("Готово!")
+
+async def main():
+    await process_news()
+    asyncio.create_task(news_loop())
+    await dp.start_polling(bot)
 
 def run_bot():
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(process_news())
-    asyncio.create_task(news_loop())
-    asyncio.run(dp.start_polling(bot))
+    asyncio.run(main())

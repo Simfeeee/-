@@ -81,9 +81,17 @@ async def format_post(item):
         text += gpt_summary + "\n\n"
     else:
         text += summary + "\n\n"
-    text += annotation + "\n\n"
+    if annotation:
+        text += annotation + "\n\n"
+    else:
+        logging.warning("⚠️ Аннотация не получена, пропускаем.")
+        return None, None, None
     text += "👉 <b>@fastnewsrussian</b>"
-    text += annotation + "\n\n"
+    if annotation:
+        text += annotation + "\n\n"
+    else:
+        logging.warning("⚠️ Аннотация не получена, пропускаем.")
+        return None, None, None
     text += "👉 <b>@fastnewsrussian</b>"
 
     text += "👉 <b>@fastnewsrussian</b>"
